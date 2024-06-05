@@ -1,7 +1,10 @@
 package Tuan3.NguyenHuuPhanAnh.controllers;
 
+import Tuan3.NguyenHuuPhanAnh.daos.Item;
 import Tuan3.NguyenHuuPhanAnh.entities.Book;
 import Tuan3.NguyenHuuPhanAnh.services.BookService;
+import Tuan3.NguyenHuuPhanAnh.services.CartService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
+    private final CartService cartService;
 
     @GetMapping
     public String showAllBooks(
@@ -25,5 +29,17 @@ public class BookController {
 //        model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("totalPages",bookService.getAllBooks(pageNo, pageSize, sortBy).size() / pageSize);
         return "book/list";
+    }
+    @PostMapping("/add-to-cart")
+    public String addToCart(HttpSession session,
+                            @RequestParam long id,
+                            @RequestParam String name,
+                            @RequestParam double price,
+                            @RequestParam(defaultValue = "1") int quantity)
+    {
+        var cart = cartService.getCart(session);
+        cart.addItems(new Item(id, name, price, quantity));
+        cartService.updateCart(session, cart);
+        return "redirect:/books";
     }
 }
