@@ -42,14 +42,14 @@ public class BookController {
         model.addAttribute("categories", categoryService.getAllCategories());
         return "book/add";
     }
+
     @PostMapping("/add")
     public String addBook(
             @Valid @ModelAttribute("book") Book book,
             @NotNull BindingResult bindingResult,
             Model model) {
         if (bindingResult.hasErrors()) {
-            var errors = bindingResult
-                    .getAllErrors()
+            var errors = bindingResult.getAllErrors()
                     .stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .toArray(String[]::new);
