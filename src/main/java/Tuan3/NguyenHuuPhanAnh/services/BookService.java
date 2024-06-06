@@ -35,7 +35,6 @@ public class BookService {
         bookRepository.save(book);
     }
 
-
     public void updateBook(@NotNull Book book) {
         Book existingBook = bookRepository.findById(book.getId())
                 .orElse(null);
