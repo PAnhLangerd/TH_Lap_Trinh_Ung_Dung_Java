@@ -4,11 +4,15 @@ import Tuan3.NguyenHuuPhanAnh.daos.Item;
 import Tuan3.NguyenHuuPhanAnh.entities.Book;
 import Tuan3.NguyenHuuPhanAnh.services.BookService;
 import Tuan3.NguyenHuuPhanAnh.services.CartService;
+import Tuan3.NguyenHuuPhanAnh.services.CategoryService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
+    private final CategoryService categoryService;
     private final CartService cartService;
 
     @GetMapping
@@ -26,10 +31,36 @@ public class BookController {
             @RequestParam(defaultValue = "id") String sortBy) {
         model.addAttribute("books", bookService.getAllBooks(pageNo, pageSize, sortBy));
         model.addAttribute("currentPage", pageNo);
-//        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("totalPages",bookService.getAllBooks(pageNo, pageSize, sortBy).size() / pageSize);
         return "book/list";
     }
+
+    @GetMapping("/add")
+    public String addBookForm(@NotNull Model model) {
+        model.addAttribute("book", new Book());
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "book/add";
+    }
+    @PostMapping("/add")
+    public String addBook(
+            @Valid @ModelAttribute("book") Book book,
+            @NotNull BindingResult bindingResult,
+            Model model) {
+        if (bindingResult.hasErrors()) {
+            var errors = bindingResult
+                    .getAllErrors()
+                    .stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .toArray(String[]::new);
+            model.addAttribute("errors", errors);
+            model.addAttribute("categories", categoryService.getAllCategories());
+            return "book/add";
+        }
+        bookService.addBook(book);
+        return "redirect:/books";
+    }
+
     @PostMapping("/add-to-cart")
     public String addToCart(HttpSession session,
                             @RequestParam long id,
