@@ -1,4 +1,4 @@
-package Tuan3.NguyenHuuPhanAnh.validators.annotations;
+package Tuan3.NguyenHuuPhanAnh.validators;
 
 import Tuan3.NguyenHuuPhanAnh.services.UserService;
 import Tuan3.NguyenHuuPhanAnh.validators.annotations.ValidUsername;

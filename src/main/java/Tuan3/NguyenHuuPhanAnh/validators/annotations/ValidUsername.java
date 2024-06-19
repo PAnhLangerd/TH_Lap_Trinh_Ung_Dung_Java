@@ -1,6 +1,6 @@
 package Tuan3.NguyenHuuPhanAnh.validators.annotations;
 
-import Tuan3.NguyenHuuPhanAnh.validators.annotations.ValidUsernameValidator;
+import Tuan3.NguyenHuuPhanAnh.validators.ValidUsernameValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
