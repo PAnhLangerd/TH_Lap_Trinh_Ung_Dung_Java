@@ -16,14 +16,11 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(isolation = Isolation.SERIALIZABLE,
-        rollbackFor = {Exception.class, Throwable.class})
+@Transactional(isolation = Isolation.SERIALIZABLE, rollbackFor = {Exception.class, Throwable.class})
 public class BookService {
     private final IBookRepository bookRepository;
 
-    public List<Book> getAllBooks(Integer pageNo,
-                                  Integer pageSize,
-                                  String sortBy) {
+    public List<Book> getAllBooks(Integer pageNo, Integer pageSize, String sortBy) {
         return bookRepository.findAllBooks(pageNo, pageSize, sortBy);
     }
 
@@ -37,8 +34,8 @@ public class BookService {
 
     public void updateBook(@NotNull Book book) {
         Book existingBook = bookRepository.findById(book.getId())
-                .orElse(null);
-        Objects.requireNonNull(existingBook).setTitle(book.getTitle());
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+        existingBook.setTitle(book.getTitle());
         existingBook.setAuthor(book.getAuthor());
         existingBook.setPrice(book.getPrice());
         existingBook.setCategory(book.getCategory());
