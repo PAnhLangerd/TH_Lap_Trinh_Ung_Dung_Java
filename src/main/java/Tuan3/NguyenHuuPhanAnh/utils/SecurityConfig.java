@@ -1,21 +1,29 @@
 package Tuan3.NguyenHuuPhanAnh.utils;
 
+import Tuan3.NguyenHuuPhanAnh.services.OAuthService;
 import Tuan3.NguyenHuuPhanAnh.services.UserService;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.web.SecurityFilterChain;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final UserService userService;
+    private final OAuthService oAuthService;
+
     @Bean
     public UserDetailsService userDetailsService() {
         return new UserService();
@@ -35,25 +43,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(@NotNull
                                                    HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers( "/css/**", "/js/**", "/",
-                                "/register", "/error")
+                        .requestMatchers("/css/**", "/js/**", "/",
+                                "/oauth/**", "/register", "/error")
                         .permitAll()
-
-                        .requestMatchers( "/books/edit",
-
-                                "/books/delete")
-                        .authenticated()
-
-                        .requestMatchers("/books", "/books/add")
-
-                        .authenticated()
-
+                        .requestMatchers("/books/edit/**",
+                                "/books/add", "/books/delete")
+                        .hasAnyAuthority("ADMIN")
+                        .requestMatchers("/books", "/cart", "/cart/**")
+                        .hasAnyAuthority("ADMIN", "USER")
                         .requestMatchers("/api/**")
-
-                        .authenticated()
-
+                        .hasAnyAuthority("ADMIN", "USER")
                         .anyRequest().authenticated()
-
                 )
                 .logout(logout ->
                         logout.logoutUrl("/logout")
